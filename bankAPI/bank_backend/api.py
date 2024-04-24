@@ -1,6 +1,6 @@
 from ninja import NinjaAPI
-from .models import UserInfo, UserAccount
-from .schemas import UserInfoSchema, UserAccountSchema
+from .models import UserInformations, UserAccount
+from .schemas import UserInformationsSchema, UserAccountSchema
 
 class Setup:
 
@@ -16,6 +16,6 @@ def get_accounts(request):
     return UserAccount.objects.all()
 
 
-@api.get("v1/bank/users", response=list[UserInfoSchema])
+@api.get("v1/bank/users", response=list[UserInformationsSchema])
 def get_users(request):
-    return UserInfo.objects.all()
+    return UserInformations.objects.all()

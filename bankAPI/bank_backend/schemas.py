@@ -1,23 +1,27 @@
 from ninja import ModelSchema
-from .models import UserAccount, UserInfo
+from bank_backend.models import UserAccount, UserInformations
 
 
 
-class UserInfoSchema(ModelSchema):
+class UserInformationsSchema(ModelSchema):
+
     class Meta:
-        model = UserInfo
+        model = UserInformations
         fields = (
             'user_id',
             'user_info',
-            'national_id',
-            'user_account'
+            'national_id'
         )
 
 class UserAccountSchema(ModelSchema):
+
+    user_id : UserInformationsSchema
+
     class Meta:
         model = UserAccount
         fields = (
             'available_amount',
             'locked_amount',
-            
+            'loan_amount',
+            'user_id'
         )
