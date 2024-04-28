@@ -1,6 +1,5 @@
-from ninja import ModelSchema
+from ninja import ModelSchema, Schema
 from bank_backend.models import UserAccount, UserInformations
-
 
 
 class UserInformationsSchema(ModelSchema):
@@ -20,8 +19,26 @@ class UserAccountSchema(ModelSchema):
     class Meta:
         model = UserAccount
         fields = (
+            'account_type',
             'available_amount',
             'locked_amount',
             'loan_amount',
             'user_id'
         )
+
+class InserUserInformations(Schema):
+    user_info: str
+    user_password: str
+    national_id: str
+
+
+class EncodedUserSecret(Schema):
+    user_info: str
+    user_password:str
+    user_national_id: str
+
+
+class InsertUserAccount(Schema):
+    available_amount: float
+    loan_amount: float = None
+    locked_amount: float = None
