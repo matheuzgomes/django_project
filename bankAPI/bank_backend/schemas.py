@@ -35,7 +35,6 @@ class InserUserInformations(Schema):
 class EncodedUserSecret(Schema):
     user_info: str
     user_password:str
-    user_national_id: str
 
 
 class InsertUserAccount(Schema):

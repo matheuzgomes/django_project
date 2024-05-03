@@ -38,7 +38,7 @@ class Authentication:
     def validate_user_password(self, password, hashed_info):
         try:
             payload = decode(
-                hashed_info.user_password, 
+                hashed_info.user_password,
                 JWT_SECRET_KEY,
                 ALGORITHM
             )
@@ -56,27 +56,37 @@ class Authentication:
 
     @classmethod
     def hash_password(cls, data: Dict[str, str]):
+        try:
 
-        hashed_password = encode(
-            data,
-            JWT_SECRET_KEY,
-            ALGORITHM
-        )
+            hashed_password = encode(
+                data,
+                JWT_SECRET_KEY,
+                ALGORITHM
+            )
+
+        except(PyJWTError, ValidationError) as e:
+            raise HttpError(
+                status_code=403,
+                message= "Could not validate credentials"
+            )
 
         return hashed_password
-    
+
 
     @classmethod
-    def verify_user(cls, token: str):
-        
-        decoded_token = decode(
-            token,
-            JWT_SECRET_KEY,
-            ALGORITHM
-        )
+    def decode_token(cls, token: str):
+        try:
+
+            decoded_token = decode(
+                token,
+                JWT_SECRET_KEY,
+                ALGORITHM
+            )
+
+        except(PyJWTError, ValidationError) as e:
+            raise HttpError(
+                status_code=403,
+                message= "Could not validate credentials"
+            )
 
         return decoded_token
-
-
-
-
