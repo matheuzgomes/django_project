@@ -19,4 +19,3 @@ class UserAccount(models.Model):
         null=True,
         blank=True
     )
- 

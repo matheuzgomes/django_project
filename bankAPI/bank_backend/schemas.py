@@ -19,6 +19,7 @@ class UserAccountSchema(ModelSchema):
     class Meta:
         model = UserAccount
         fields = (
+            'id',
             'account_type',
             'available_amount',
             'locked_amount',
@@ -38,6 +39,11 @@ class EncodedUserSecret(Schema):
 
 
 class InsertUserAccount(Schema):
+    available_amount: float
+    loan_amount: float = None
+    locked_amount: float = None
+
+class UpdateUserAccount(Schema):
     available_amount: float
     loan_amount: float = None
     locked_amount: float = None
