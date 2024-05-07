@@ -1,5 +1,6 @@
 from ninja import ModelSchema, Schema
 from bank_backend.models import UserAccount, UserInformations
+from decimal import Decimal
 
 
 class UserInformationsSchema(ModelSchema):
@@ -44,6 +45,7 @@ class InsertUserAccount(Schema):
     locked_amount: float = None
 
 class UpdateUserAccount(Schema):
-    available_amount: float
-    loan_amount: float = None
-    locked_amount: float = None
+    available_amount: Decimal = None
+    loan_amount: Decimal = None
+    locked_amount: Decimal = None
+

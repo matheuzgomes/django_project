@@ -9,6 +9,7 @@ from .schemas import (
     UpdateUserAccount,
 )
 from .authentication import Authentication
+from .exception_handler import GenericExceptionHandlerController
 from ninja.security import HttpBearer
 from ninja.errors import HttpError
 from django.shortcuts import get_object_or_404
@@ -115,3 +116,27 @@ class BankApi:
         get_account.delete()
 
         return {"success": True}
+
+    @api.put("v1/bank/users/lock/amount/{account_id}", auth=AuthBearer())
+    def lock_user_amount(request, account_id: int, data: UpdateUserAccount) -> dict[str, bool]:
+
+        get_account = get_object_or_404(
+            UserAccount, id=account_id, user_id=request.auth["data"]["user_id"]
+        )
+        try:
+            if get_account.available_amount > 0:
+                get_account.locked_amount += data.locked_amount
+                get_account.available_amount -= data.locked_amount
+
+                get_account.save()
+
+        except Exception as e:
+            GenericExceptionHandlerController.execute(e)
+
+        serialize = {
+            "available_amount": get_account.available_amount,
+            "loan_amount": get_account.loan_amount,
+            "id": get_account.id,
+            "locked_amount": get_account.locked_amount
+        }
+        return serialize
