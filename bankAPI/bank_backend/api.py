@@ -1,4 +1,7 @@
+from ninja.errors import HttpError
+from django.shortcuts import get_object_or_404
 from .setup import api
+from .authentication_handler import AuthBearer
 from .models import UserInformations, UserAccount
 from .schemas import (
     UserInformationsSchema,
@@ -8,26 +11,8 @@ from .schemas import (
     InsertUserAccount,
     UpdateUserAccount,
 )
-from .authentication import Authentication
+from .authentication_handler.authentication_handler import Authentication
 from .exception_handler import GenericExceptionHandlerController
-from ninja.security import HttpBearer
-from ninja.errors import HttpError
-from django.shortcuts import get_object_or_404
-
-
-class AuthBearer(HttpBearer):
-    def authenticate(self, request, credentials):
-        token = Authentication().decode_token(token=credentials)
-
-        BankApi.user_login(
-            request,
-            item=EncodedUserSecret(
-                user_info=token["data"]["user_info"],
-                user_password=token["data"]["user_password"],
-            ),
-        )
-
-        return token
 
 
 class BankApi:
@@ -53,9 +38,7 @@ class BankApi:
 
         return inserted_model
 
-    @api.post(
-        "v1/bank/users/create/account", response=UserAccountSchema, auth=AuthBearer()
-    )
+    @api.post("v1/bank/users/create/account", response=UserAccountSchema, auth=AuthBearer())
     def create_user_account(request, item: InsertUserAccount) -> UserAccount:
         inserted_model = UserAccount.objects.create(
             available_amount=item.available_amount,
@@ -133,10 +116,12 @@ class BankApi:
         except Exception as e:
             GenericExceptionHandlerController.execute(e)
 
+        
         serialize = {
             "available_amount": get_account.available_amount,
             "loan_amount": get_account.loan_amount,
             "id": get_account.id,
             "locked_amount": get_account.locked_amount
         }
+
         return serialize
