@@ -1,15 +1,15 @@
 from ninja.errors import HttpError
 from django.shortcuts import get_object_or_404
+from models import UserInformations, UserAccount
 from .setup import api
 from .authentication_handler import AuthBearer
-from .models import UserInformations, UserAccount
-from .schemas import (
+from schemas import (
     UserInformationsSchema,
     UserAccountSchema,
-    InserUserInformations,
-    EncodedUserSecret,
-    InsertUserAccount,
-    UpdateUserAccount,
+    InserUserInformationsSchema,
+    EncodedUserSecretSchema,
+    InsertUserAccountSchema,
+    UpdateUserAccountSchema,
 )
 from .authentication_handler.authentication_handler import Authentication
 from .exception_handler import GenericExceptionHandlerController
@@ -25,7 +25,7 @@ class BankApi:
         return UserInformations.objects.all()
 
     @api.post("v1/bank/users/create", response=UserInformationsSchema)
-    def create_user(request, item: InserUserInformations) -> UserInformations:
+    def create_user(request, item: InserUserInformationsSchema) -> UserInformations:
         encoded_password = Authentication.hash_password(
             {"user_password": item.user_password}
         )
@@ -39,7 +39,7 @@ class BankApi:
         return inserted_model
 
     @api.post("v1/bank/users/create/account", response=UserAccountSchema, auth=AuthBearer())
-    def create_user_account(request, item: InsertUserAccount) -> UserAccount:
+    def create_user_account(request, item: InsertUserAccountSchema) -> UserAccount:
         inserted_model = UserAccount.objects.create(
             available_amount=item.available_amount,
             locked_amount=item.locked_amount,
@@ -50,7 +50,7 @@ class BankApi:
         return inserted_model
 
     @api.post("v1/bank/users/login", response=str)
-    def user_login(request, item: EncodedUserSecret) -> str:
+    def user_login(request, item: EncodedUserSecretSchema) -> str:
         get_user = get_object_or_404(UserInformations, user_info=item.user_info)
 
         validation = Authentication.validate_user_password(item.user_password, get_user)
@@ -68,7 +68,7 @@ class BankApi:
 
     @api.put("v1/bank/users/update/account/{account_id}", auth=AuthBearer())
     def update_user_account(
-        request, account_id: int, item: UpdateUserAccount
+        request, account_id: int, item: UpdateUserAccountSchema
     ) -> dict[str, bool]:
         account_for_update = get_object_or_404(
             UserAccount, id=account_id, user_id=request.auth["data"]["user_id"]
@@ -101,11 +101,12 @@ class BankApi:
         return {"success": True}
 
     @api.put("v1/bank/users/lock/amount/{account_id}", auth=AuthBearer())
-    def lock_user_amount(request, account_id: int, data: UpdateUserAccount) -> dict[str, bool]:
+    def lock_user_amount(request, account_id: int, data: UpdateUserAccountSchema) -> dict[str, bool]:
 
         get_account = get_object_or_404(
             UserAccount, id=account_id, user_id=request.auth["data"]["user_id"]
         )
+
         try:
             if get_account.available_amount > 0:
                 get_account.locked_amount += data.locked_amount
@@ -116,7 +117,7 @@ class BankApi:
         except Exception as e:
             GenericExceptionHandlerController.execute(e)
 
-        
+
         serialize = {
             "available_amount": get_account.available_amount,
             "loan_amount": get_account.loan_amount,
