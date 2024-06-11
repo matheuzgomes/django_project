@@ -26,9 +26,7 @@ class BankApi:
 
     @api.post("v1/bank/users/create", response=UserInformationsSchema)
     def create_user(request, item: InserUserInformationsSchema) -> UserInformations:
-        encoded_password = Authentication.hash_password(
-            {"user_password": item.user_password}
-        )
+        encoded_password = Authentication.hash_password({"user_password": item.user_password})
 
         inserted_model = UserInformations.objects.create(
             user_info=item.user_info.strip(),

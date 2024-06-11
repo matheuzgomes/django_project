@@ -1,7 +1,7 @@
 from ninja.security import HttpBearer
-from .authentication_handler import Authentication
-from ..schemas import EncodedUserSecret
 from ..api import BankApi
+from ..schemas import EncodedUserSecretSchema
+from .authentication_handler import Authentication
 
 
 class AuthBearer(HttpBearer):
@@ -10,7 +10,7 @@ class AuthBearer(HttpBearer):
 
         bank_api.user_login(
             request,
-            item=EncodedUserSecret(
+            item=EncodedUserSecretSchema(
                 user_info=token["data"]["user_info"],
                 user_password=token["data"]["user_password"],
             ),
