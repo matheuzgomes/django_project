@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.urls import path
-from bank_backend.api import api
+from bank_backend.setup import api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api/", api.urls)
+    path("api/", api.urls),
 ]

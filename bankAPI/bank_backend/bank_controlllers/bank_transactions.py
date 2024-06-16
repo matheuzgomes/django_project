@@ -1,30 +1,30 @@
-from ninja.errors import HttpError
 from django.shortcuts import get_object_or_404
-from models import UserInformations, UserAccount
-from .setup import api
-from .authentication_handler import AuthBearer
-from schemas import (
+from ..models import UserInformations, UserAccount
+from ninja import Router
+from ..authentication_handler import AuthBearer
+from ..schemas import (
     UserInformationsSchema,
     UserAccountSchema,
     InserUserInformationsSchema,
-    EncodedUserSecretSchema,
     InsertUserAccountSchema,
     UpdateUserAccountSchema,
 )
-from .authentication_handler.authentication_handler import Authentication
-from .exception_handler import GenericExceptionHandlerController
+from ..authentication_handler.authentication_handler import Authentication
+from ..exception_handler import GenericExceptionHandlerController
 
+
+router = Router()
 
 class BankApi:
-    @api.get("v1/bank/accounts", response=list[UserAccountSchema], auth=AuthBearer())
+    @router.get("v1/accounts", response=list[UserAccountSchema], auth=AuthBearer())
     def get_accounts(request) -> list[UserAccount]:
         return UserAccount.objects.all().filter(user_id=request.auth["data"]["user_id"])
 
-    @api.get("v1/bank/users", response=list[UserInformationsSchema], auth=AuthBearer())
+    @router.get("v1/users", response=list[UserInformationsSchema], auth=AuthBearer())
     def get_users(request) -> list[UserInformations]:
         return UserInformations.objects.all()
 
-    @api.post("v1/bank/users/create", response=UserInformationsSchema)
+    @router.post("v1/users/create", response=UserInformationsSchema)
     def create_user(request, item: InserUserInformationsSchema) -> UserInformations:
         encoded_password = Authentication.hash_password({"user_password": item.user_password})
 
@@ -36,7 +36,7 @@ class BankApi:
 
         return inserted_model
 
-    @api.post("v1/bank/users/create/account", response=UserAccountSchema, auth=AuthBearer())
+    @router.post("v1/users/create/account", response=UserAccountSchema, auth=AuthBearer())
     def create_user_account(request, item: InsertUserAccountSchema) -> UserAccount:
         inserted_model = UserAccount.objects.create(
             available_amount=item.available_amount,
@@ -47,24 +47,7 @@ class BankApi:
 
         return inserted_model
 
-    @api.post("v1/bank/users/login", response=str)
-    def user_login(request, item: EncodedUserSecretSchema) -> str:
-        get_user = get_object_or_404(UserInformations, user_info=item.user_info)
-
-        validation = Authentication.validate_user_password(item.user_password, get_user)
-
-        if validation is False:
-            raise HttpError(401, "Invalid User")
-
-        return Authentication.create_access_token(
-            {
-                "user_id": str(get_user.user_id),
-                "user_info": item.user_info,
-                "user_password": item.user_password,
-            }
-        )
-
-    @api.put("v1/bank/users/update/account/{account_id}", auth=AuthBearer())
+    @router.put("v1/users/update/account/{account_id}", auth=AuthBearer())
     def update_user_account(
         request, account_id: int, item: UpdateUserAccountSchema
     ) -> dict[str, bool]:
@@ -88,7 +71,7 @@ class BankApi:
 
         return {"success": True}
 
-    @api.delete("v1/bank/users/delete/account/{account_id}", auth=AuthBearer())
+    @router.delete("v1/users/delete/account/{account_id}", auth=AuthBearer())
     def delete_user_account(request, account_id: int) -> dict[str, bool]:
         get_account = get_object_or_404(
             UserAccount, id=account_id, user_id=request.auth["data"]["user_id"]
@@ -98,7 +81,7 @@ class BankApi:
 
         return {"success": True}
 
-    @api.put("v1/bank/users/lock/amount/{account_id}", auth=AuthBearer())
+    @router.put("v1/users/lock/amount/{account_id}", auth=AuthBearer())
     def lock_user_amount(request, account_id: int, data: UpdateUserAccountSchema) -> dict[str, bool]:
 
         get_account = get_object_or_404(
