@@ -15,6 +15,7 @@ from ..exception_handler import GenericExceptionHandlerController
 
 router = Router()
 
+
 class BankApi:
     @router.get("v1/accounts", response=list[UserAccountSchema], auth=AuthBearer())
     def get_accounts(request) -> list[UserAccount]:
@@ -26,7 +27,9 @@ class BankApi:
 
     @router.post("v1/users/create", response=UserInformationsSchema)
     def create_user(request, item: InserUserInformationsSchema) -> UserInformations:
-        encoded_password = Authentication.hash_password({"user_password": item.user_password})
+        encoded_password = Authentication.hash_password(
+            {"user_password": item.user_password}
+        )
 
         inserted_model = UserInformations.objects.create(
             user_info=item.user_info.strip(),
@@ -36,7 +39,9 @@ class BankApi:
 
         return inserted_model
 
-    @router.post("v1/users/create/account", response=UserAccountSchema, auth=AuthBearer())
+    @router.post(
+        "v1/users/create/account", response=UserAccountSchema, auth=AuthBearer()
+    )
     def create_user_account(request, item: InsertUserAccountSchema) -> UserAccount:
         inserted_model = UserAccount.objects.create(
             available_amount=item.available_amount,
@@ -82,8 +87,9 @@ class BankApi:
         return {"success": True}
 
     @router.put("v1/users/lock/amount/{account_id}", auth=AuthBearer())
-    def lock_user_amount(request, account_id: int, data: UpdateUserAccountSchema) -> dict[str, bool]:
-
+    def lock_user_amount(
+        request, account_id: int, data: UpdateUserAccountSchema
+    ) -> dict[str, bool]:
         get_account = get_object_or_404(
             UserAccount, id=account_id, user_id=request.auth["data"]["user_id"]
         )
@@ -98,12 +104,11 @@ class BankApi:
         except Exception as e:
             GenericExceptionHandlerController.execute(e)
 
-
         serialize = {
             "available_amount": get_account.available_amount,
             "loan_amount": get_account.loan_amount,
             "id": get_account.id,
-            "locked_amount": get_account.locked_amount
+            "locked_amount": get_account.locked_amount,
         }
 
         return serialize

@@ -7,8 +7,8 @@ from ..schemas import EncodedUserSecretSchema
 
 router = Router()
 
-class UserApi:
 
+class UserApi:
     @router.post("v1/login", response=str)
     def user_login(request, item: EncodedUserSecretSchema) -> str:
         get_user = get_object_or_404(UserInformations, user_info=item.user_info)

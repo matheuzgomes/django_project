@@ -1,6 +1,6 @@
 from ninja.security import HttpBearer
 from ninja.errors import AuthenticationError
-from ..bank_controlllers.user_utilities import UserApi
+from ..controlllers.user_utilities import UserApi
 from ..schemas import EncodedUserSecretSchema
 from .authentication_handler import Authentication
 
