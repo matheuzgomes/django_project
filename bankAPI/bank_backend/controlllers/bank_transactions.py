@@ -3,13 +3,10 @@ from ..models import UserInformations, UserAccount
 from ninja import Router
 from ..authentication_handler import AuthBearer
 from ..schemas import (
-    UserInformationsSchema,
     UserAccountSchema,
-    InserUserInformationsSchema,
     InsertUserAccountSchema,
     UpdateUserAccountSchema,
 )
-from ..authentication_handler.authentication_handler import Authentication
 from ..exception_handler import GenericExceptionHandlerController
 
 
@@ -20,24 +17,6 @@ class BankApi:
     @router.get("v1/accounts", response=list[UserAccountSchema], auth=AuthBearer())
     def get_accounts(request) -> list[UserAccount]:
         return UserAccount.objects.all().filter(user_id=request.auth["data"]["user_id"])
-
-    @router.get("v1/users", response=list[UserInformationsSchema], auth=AuthBearer())
-    def get_users(request) -> list[UserInformations]:
-        return UserInformations.objects.all()
-
-    @router.post("v1/users/create", response=UserInformationsSchema)
-    def create_user(request, item: InserUserInformationsSchema) -> UserInformations:
-        encoded_password = Authentication.hash_password(
-            {"user_password": item.user_password}
-        )
-
-        inserted_model = UserInformations.objects.create(
-            user_info=item.user_info.strip(),
-            user_password=encoded_password,
-            national_id=item.national_id.strip(),
-        )
-
-        return inserted_model
 
     @router.post(
         "v1/users/create/account", response=UserAccountSchema, auth=AuthBearer()

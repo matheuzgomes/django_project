@@ -15,7 +15,6 @@ class AuthBearer(HttpBearer):
             token = Authentication().decode_token(token=request)
 
             if token:
-
                 self.user.user_login(
                     request,
                     item=EncodedUserSecretSchema(
@@ -23,9 +22,6 @@ class AuthBearer(HttpBearer):
                         user_password=token["data"]["user_password"],
                     ),
                 )
-
                 return token
         except Exception as e:
             raise AuthenticationError(f"Failed to authenticate : {str(e)}")
-
-        return token

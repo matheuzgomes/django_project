@@ -1,0 +1,14 @@
+@host=http://127.0.0.1:8000/api
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiIwY2RlNmQyNy1iODRjLTQzYzYtYmEyNi04YzU2ZmY3YjYzMzgiLCJ1c2VyX2luZm8iOiJNaWxsYSIsInVzZXJfcGFzc3dvcmQiOiJzZW5oYTEyMyJ9LCJleHAiOjE3MTg3NDc2Mjh9.9FJ6HWuoCebUdRrShCIzVB6O4b7VNKnNDn0O5osGUHc
+
+
+POST {{host}}/bank/v1/users/create/account HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "available_amount": 0,
+  "loan_amount": 0,
+  "locked_amount": 0
+}
+####
