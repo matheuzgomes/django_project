@@ -1,18 +1,18 @@
 from ninja.security import HttpBearer
 from ninja.errors import AuthenticationError
-from ..controlllers.user_utilities import UserApi
 from ..schemas import EncodedUserSecretSchema
-from .authentication_handler import Authentication
+from ..controlllers.user_utilities import LoginController
+from .authentication_handler import AuthenticationHandler
 
 
 class AuthBearer(HttpBearer):
 
-    def __init__(self, user_api: UserApi = UserApi) -> None:
+    def __init__(self, user_api:LoginController = LoginController()) -> None:
         self.user = user_api
 
     def authenticate(self, api, request):
         try:
-            token = Authentication().decode_token(token=request)
+            token = AuthenticationHandler().decode_token(token=request)
 
             if token:
                 self.user.user_login(

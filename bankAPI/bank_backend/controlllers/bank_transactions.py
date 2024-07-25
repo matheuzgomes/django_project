@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from ..models import UserInformations, UserAccount
 from ninja import Router
-from ..authentication_handler import AuthBearer
+from ..utils import AuthBearer
 from ..schemas import (
     UserAccountSchema,
     InsertUserAccountSchema,

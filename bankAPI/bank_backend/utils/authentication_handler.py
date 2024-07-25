@@ -13,7 +13,7 @@ JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 JWT_REFRESH_SECRET_KEY = os.environ.get("JWT_REFRESH_SECRET_KEY")
 
 
-class Authentication:
+class AuthenticationHandler:
     @classmethod
     def create_access_token(cls, payload: Dict[str, str]):
         expiring_delta = datetime.now(timezone.utc) + timedelta(
